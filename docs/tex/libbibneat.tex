@@ -1,0 +1,142 @@
+% libbibneat.tex -- Overview of the bibneat C++ Library API
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{tcolorbox}
+\usepackage{parskip}
+\setlength{\parindent}{0pt}
+
+\usepackage{xcolor}
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstset{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,,
+    columns=fullflexible,
+}
+
+\title{\texttt{libbibneat} \\ \large A C++ Library for BibTeX Manipulation}
+\author{Lorenzo Peri}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\texttt{libbibneat} is a C++ shared library for parsing, transforming, and writing BibTeX files. It powers the \texttt{bibneat} and \texttt{bibgrab} tools, and is designed to be a flexible foundation for your own bibliography-processing projects.
+\end{abstract}
+
+\section{Philosophy and Design}
+The core idea of \texttt{libbibneat} is to provide a modular, composable API for working with BibTeX data. The main container is a \texttt{BibDB}, which holds many \texttt{BibEntry} objects (each representing a single BibTeX entry) via a vector of \texttt{std::unique\_ptr}. All transformations and parsing are performed by objects that operate on a \texttt{BibDB}.
+
+\section{Core Data Structures}
+\subsection{\texttt{BibEntry} and \texttt{BibDB}}
+\begin{itemize}
+  \item \texttt{BibEntry} (\texttt{lib/bibneat/database/bibfile.hpp}): Represents a single BibTeX entry. Stores the entry type, key, and all fields as strings. Provides methods to add attributes and determine BibTeX type.
+  \item \texttt{BibDB} (\texttt{lib/bibneat/database/bibfile.hpp}): A container for many \texttt{BibEntry} objects (and special entries). Provides methods to add, clear, and manage entries.
+\end{itemize}
+
+\section{API Components}
+All major API classes take a \texttt{std::shared\_ptr<BibDB>} in their constructor and operate on the database in-place.
+
+\subsection{Parsing}
+\textbf{Header:} \texttt{lib/bibneat/database/parser.hpp}
+
+\begin{itemize}
+  \item \texttt{Parser}: Parses BibTeX files (\texttt{Parser::parse(std::string filename)}) or strings \\
+(\texttt{Parser::parseString(std::string bibTex)}) and adds entries to a \texttt{BibDB}.
+\end{itemize}
+
+\subsection{API Calls}
+\textbf{Header:} \texttt{lib/bibneat/recipes/apicalls.hpp}
+
+\begin{itemize}
+  \item \texttt{ApiCaller}: Connects to arXiv and doi.org APIs.
+    \begin{itemize}
+      \item \texttt{ApiCaller::checkArXiv(bool replaceWithArxiv, bool replaceWithDOI)} -- Checks arXiv entries, can replace with published version.
+      \item \texttt{ApiCaller::checkDOI(bool replaceWithDOI)} -- Checks DOI entries, can replace with published version.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Field Filtering}
+\textbf{Header:} \texttt{lib/bibneat/recipes/fieldfilter.hpp}
+
+\begin{itemize}
+  \item \texttt{FieldFilter}: Removes fields unknown to BibTeX. Use \texttt{FieldFilter::keepBibTex()} to keep only standard fields.
+\end{itemize}
+
+\subsection{Unicode and Normalization}
+\textbf{Header:} \texttt{lib/bibneat/uni/fieldnormalization.hpp}
+
+\begin{itemize}
+  \item \texttt{FieldNormalizer}: Handles Unicode normalization and LaTeX encoding.
+    \begin{itemize}
+      \item \texttt{FieldNormalizer::NFCNormalize()} -- Canonical normalization.
+      \item \texttt{FieldNormalizer::NFKCNormalize()} -- Compatibility normalization.
+      \item \texttt{FieldNormalizer::uni2latex()} -- Converts Unicode to LaTeX encoding (NFD decomposition, combining character mapping, special character mapping, NFC composition).
+      \item \texttt{FieldNormalizer::addUTF8Preamble()} -- Adds a UTF-8 encoding preamble to the BibDB.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Printing}
+\textbf{Header:} \texttt{lib/bibneat/database/printer.hpp}
+
+\begin{itemize}
+  \item \texttt{Printer}: Writes the BibDB to a .bib file (\texttt{Printer::toBibFile(std::string filename, bool overwrite=true)}).
+\end{itemize}
+
+\section{Example Usage}
+\begin{lstlisting}[language=C++]
+#include <memory>
+#include "lib/bibneat/database/bibfile.hpp"
+#include "lib/bibneat/database/parser.hpp"
+#include "lib/bibneat/recipes/apicalls.hpp"
+#include "lib/bibneat/recipes/fieldfilter.hpp"
+#include "lib/bibneat/uni/fieldnormalization.hpp"
+#include "lib/bibneat/database/printer.hpp"
+
+int main() {
+    // Create a new BibDB (the main bibliography container)
+    auto db = std::make_shared<BibDB>();
+    // Parse a .bib file and populate the BibDB
+    Parser parser(db);
+    parser.parse("myrefs.bib");
+    // Set up API caller for arXiv/DOI lookups (timeouts in seconds)
+    long connTimeout=15L;
+    long totTimeout=20L;
+    ApiCaller api(db, connTimeout, totTimeout);
+    // Check arXiv entries and replace with published version if available
+    bool replaceWithArxiv=true;
+    bool replaceWithDOI=true;
+    api.checkArXiv(replaceWithArxiv, replaceWithDOI);
+    // Remove non-standard BibTeX fields
+    FieldFilter filter(db);
+    filter.keepBibTex();
+    // Normalize Unicode and convert to LaTeX encoding
+    FieldNormalizer normalizer(db);
+    normalizer.NFCNormalize();
+    normalizer.uni2latex();
+    // Add UTF-8 encoding preamble
+    normalizer.addUTF8Preamble();
+    // Write the cleaned bibliography to a file
+    Printer printer(db);
+    printer.toBibFile("cleaned.bib");
+}
+\end{lstlisting}
+
+\section{Extending libbibneat}
+The API is designed to be modular and extensible. You can add your own transformation classes that operate on a \texttt{BibDB}, or use the provided utilities for string and Unicode handling (see \texttt{lib/bibneat/utils/}).
+
+\section{License}
+\texttt{libbibneat} is open source and distributed under the GLP3 License. Have fun!
+
+\end{document}

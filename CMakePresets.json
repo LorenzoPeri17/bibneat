@@ -1,0 +1,56 @@
+{
+  "version": 4,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 20,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "release",
+      "displayName": "Default (Release, vcpkg)",
+      "description": "Release build using vcpkg dependencies.",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+      }
+    },
+    {
+      "name": "debug",
+      "displayName": "Debug (vcpkg)",
+      "description": "Debug build using vcpkg dependencies.",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+      }
+    },
+    {
+      "name": "release-no-vcpkg",
+      "displayName": "Release without vcpkg",
+      "description": "Release build using system-installed dependencies.",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build-no-vcpkg",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "release-vcpkg-classic",
+      "displayName": "Release (vcpkg classic)",
+      "description": "Release build forcing vcpkg classic mode (ignoring manifest file)",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build-vcpkg-classic",
+      "environment": {
+        "VCPKG_MANIFEST_MODE": "disabled"
+      },
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+      }
+    }
+  ]
+}

@@ -1,0 +1,215 @@
+% bibneat.tex -- Documentation for bibneat and bibgrab
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{tcolorbox}
+\usepackage{parskip}
+\setlength{\parindent}{0pt}
+
+\lstset{
+  basicstyle=\ttfamily,
+  columns=fullflexible,
+}
+
+\title{\texttt{bibneat} \\ \large Making your BibTeX files nice and neat!}
+\author{Lorenzo Peri}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\texttt{bibneat} is a command-line tool for cleaning, merging, and supercharging your BibTeX files. It ensures your bibliographies are consistent, beautiful, and always compile. This document describes its features, usage, and options in detail, and introduces its speedy sibling, \texttt{bibgrab}.
+\end{abstract}
+
+\section{Introduction}
+\texttt{bibneat} is here to help you:
+\begin{itemize}
+    \item Format your .bib files beautifully and consistently
+    \item Merge multiple bibfiles with ease (no more duplicate headaches)
+    \item Shorten and clean up entries by filtering out fields not used by BibTeX
+    \item Handle Unicode like a pro:
+    \begin{itemize}
+        \item Canonical (NFC) and compatibility-optimized (NFKC) Unicode normalization
+        \item Convert Unicode characters (accents, symbols, etc.) to their equivalent LaTeX encoding
+    \end{itemize}
+    \item Connect to arXiv.org and doi.org APIs to:
+    \begin{itemize}
+        \item Check and validate bibliography entries
+        \item Fill in missing fields automatically
+        \item Detect if an arXiv entry has been published and (optionally) replace it with the published version
+    \end{itemize}
+\end{itemize}
+
+\section{Guarantees}
+\texttt{bibneat} makes two pinkie promises:
+\begin{itemize}
+    \item If your .bib file compiled before, it will compile after bibneat touches it. Guaranteed.
+    \item Your bibliography keys are sacred. bibneat will \textbf{never} change them, so every \verb|\cite{}| in your documents will keep working, even if entries are modified or replaced.
+\end{itemize}
+
+\section{Quick Start}
+\begin{tcolorbox}[colback=gray!5!white,colframe=gray!80!black,title=Basic Usage]
+\begin{lstlisting}[language=bash]
+bibneat [options] -i input1.bib -i input2.bib ... -o output.bib
+\end{lstlisting}
+\end{tcolorbox}
+
+\section{Options for \texttt{bibneat}}
+\begin{description}[leftmargin=2.5cm,style=nextline]
+  \item[\texttt{-h, --help}] Displays this message.
+  \item[\texttt{-i}] Input .bib files for bibneat.
+  \item[\texttt{-o}] Output .bib file (default \texttt{bibneat.bib}). Can be the same as one of the input files.
+  \item[\texttt{-a, --append}] Append to output file rather than overwriting it.
+  \item[\texttt{-kb, --keep-bibtex}] Keep only fields that BibTeX knows about (delete the others).
+  \item[\texttt{-xc, --arxiv-check}] Check the arXiv API for each arXiv entry (validates the arXiv ID and checks whether a related publication exists). Do not alter the entry.
+  \item[\texttt{-xr, --arxiv-replace}] Replace each arXiv entry with the BibTeX received from the arXiv API. Do not follow known DOIs for publications.
+  \item[\texttt{-xf, --arxiv-follow}] Replace each arXiv entry with the BibTeX received from the arXiv API. If there is a known publication DOI, replace the arXiv entry with the published version.
+  \item[\texttt{-dc, --doi-check}] Check the doi.org API for each entry with known DOI (validates the DOI). Do not alter the entry.
+  \item[\texttt{-dr, --arxiv-replace}] Replace each entry with known DOI with the BibTeX received from the doi.org API.
+  \item[\texttt{-t, --timeout}] Timeout (in seconds) for each API request. Default 20s.
+  \item[\texttt{--connection-timeout}] Timeout (in seconds) for the CURL connection stage (resolution+handshake) for each API request. Default 15s. Must be $>$ timeout to have effect.
+  \item[\texttt{-p, --add-encoding-preamble}] Add UTF8 encoding as BibTeX preamble (inputenc and fontenc packages must be present in latex document preamble to have effect).
+  \item[\texttt{-uc, --unicode-canon-normalize}] Perform canonical unicode normalization of each entry (may fix compilation errors).
+  \item[\texttt{-uk, --unicode-compat-normalize}] Perform compatibility-optimized unicode normalization of each entry (should fix most compilation errors, but may result in loss of details in non-latin character sets).
+  \item[\texttt{-u2l, --unicode2latex}] Transforms unicode special characters (accents, symbols, etc.) in their equivalent latex encoding (may fix compilation errors).
+\end{description}
+
+\section{Examples}
+\begin{itemize}
+    \item Merge and clean two bibfiles:
+    \begin{lstlisting}[language=bash]
+bibneat -i refs1.bib -i refs2.bib -o merged.bib -kb
+\end{lstlisting}
+    \item Normalize unicode and convert to LaTeX:
+    \begin{lstlisting}[language=bash]
+bibneat -i messy.bib -o clean.bib -uc -u2l
+\end{lstlisting}
+    \item Check arXiv and DOI entries:
+    \begin{lstlisting}[language=bash]
+bibneat -i myrefs.bib -xc -dc
+\end{lstlisting}
+\end{itemize}
+
+\section{bibgrab: The Little Sibling}
+\texttt{bibgrab} is a quick tool to fetch BibTeX entries from arXiv or DOI identifiers. Just give it an arXiv ID, arXiv URL, or DOI, and it will print a ready-to-cite BibTeX entry.
+
+\subsection{Usage}
+\begin{tcolorbox}[colback=gray!5!white,colframe=gray!80!black,title=Basic Usage]
+\begin{lstlisting}[language=bash]
+bibgrab [arxiv-id|arxiv.org url|doi|doi.org url]
+\end{lstlisting}
+\end{tcolorbox}
+
+\subsection{Options for \texttt{bibgrab}}
+\begin{description}[leftmargin=2.5cm,style=nextline]
+  \item[\texttt{-h, --help}] Displays this message.
+  \item[\texttt{-x, --arxiv}] ArXiv entry to look up. Accepts arXiv IDs (with or without the \texttt{arXiv:} prefix) and arxiv.org URLs.
+  \item[\texttt{-d, --doi}] DOI or doi.org URL to look up.
+  \item[\texttt{-f, --arxiv-follow}] For each arXiv entry, if there is a known publication DOI, replace the arXiv entry with the published version.
+  \item[\texttt{-o}] Output .bib file (default \texttt{bibneat.bib}). Can be the same as one of the input files.
+  \item[\texttt{-no, --no-output}] Just perform request, do not write .bib file.
+  \item[\texttt{-a, --append}] Append to output file rather than overwriting it.
+  \item[\texttt{-kb, --keep-bibtex}] Keep only fields that BibTeX knows about (delete the others).
+  \item[\texttt{-t, --timeout}] Timeout (in seconds) for each API request. Default 20s.
+  \item[\texttt{--connection-timeout}] Timeout (in seconds) for the CURL connection stage (resolution+handshake) for each API request. Default 15s. Must be $>$ timeout to have effect.
+  \item[\texttt{-p, --add-encoding-preamble}] Add UTF8 encoding as BibTeX preamble (inputenc and fontenc packages must be present in latex document preamble to have effect).
+  \item[\texttt{-uc, --unicode-canon-normalize}] Perform canonical unicode normalization of each entry (may fix compilation errors).
+  \item[\texttt{-uk, --unicode-compat-normalize}] Perform compatibility-optimized unicode normalization of each entry (should fix most compilation errors, but may result in loss of details in non-latin character sets).
+  \item[\texttt{-u2l, --unicode2latex}] Transforms unicode special characters (accents, symbols, etc.) in their equivalent latex encoding (may fix compilation errors).
+\end{description}
+
+\section{Installation}
+\texttt{bibneat} depends on:
+\begin{itemize}
+    \item The C++ standard library
+    \item \href{https://curl.se/libcurl/}{libcurl} (for web requests)
+    \item \href{https://icu.unicode.org/}{ICU4C} (for Unicode and normalization magic)
+\end{itemize}
+If all dependencies are set up, just run:
+\begin{lstlisting}[language=bash]
+make
+\end{lstlisting}
+For more details, see \texttt{INSTALL.md}.
+
+\section{Why bibneat?}
+Because life’s too short for ugly bibliographies.
+
+\section{Further Help}
+For more details, usage instructions, and advanced options, run:
+\begin{lstlisting}[language=bash]
+bibneat --help
+bibgrab --help
+\end{lstlisting}
+
+% Add explanation of the encoding preamble
+\subsection*{What does the encoding preamble do?}
+When you use the \texttt{-p} or \texttt{--add-encoding-preamble} option, bibneat adds the following to the top of your .bib file:
+\begin{lstlisting}
+@preamble{"\makeatletter\@ifpackageloaded{inputenc}{\inputencoding{utf8}}{}\@ifpackageloaded{fontenc}{\fontencoding{T1}\selectfont}{}\makeatother"}
+\end{lstlisting}
+This ensures that, if your LaTeX document loads the \texttt{inputenc} and \texttt{fontenc} packages, your bibliography will be interpreted as UTF-8 and typeset with the T1 font encoding. This helps avoid weird character issues and makes your bibliography more robust to Unicode content.
+
+% Add the new example
+\subsection*{Example: Upgrading an arXiv entry to a published version}
+Suppose you have the following entry in \texttt{bibliography.bib}:
+\begin{lstlisting}
+@misc{peri2024polarimetryspinssolidstate,
+  title={Polarimetry With Spins in the Solid State},
+  author={Lorenzo Peri and Felix-Ekkehard von Horstig and Sylvain Barraud and Christopher J. B. Ford and M\`onica Benito and M. Fernando Gonzalez-Zalba},
+  year={2024},
+  primaryclass={cond-mat.mes-hall},
+  url={https://arxiv.org/abs/2410.17867},
+  archiveprefix={arXiv},
+  eprint={2410.17867},
+}
+\end{lstlisting}
+
+If you run:
+\begin{lstlisting}[language=bash]
+bibneat -xc -i bibliography.bib -o bibliography.bib
+\end{lstlisting}
+\texttt{bibneat} will not change the entry, but will print to the terminal:
+\begin{lstlisting}
+ArXiv entry peri2024polarimetryspinssolidstate has been published with DOI
+https://doi.org/10.1021/acs.nanolett.5c01511
+Please consider replacing with published version
+\end{lstlisting}
+
+If you run:
+\begin{lstlisting}[language=bash]
+bibneat -xf -i bibliography.bib -o bibliography.bib
+\end{lstlisting}
+\texttt{bibneat} will automatically replace the entry with the published version from the DOI API:
+\begin{lstlisting}
+@article{peri2024polarimetryspinssolidstate,
+  title={Polarimetry with Spins in the Solid State},
+  author={Peri, Lorenzo and von Horstig, Felix-Ekkehard and Barraud, Sylvain and Ford, Christopher J. B. and Benito, M\`onica and Gonzalez-Zalba, M. Fernando},
+  year={2025},
+  journal={Nano Letters},
+  month={may },
+  doi={10.1021/acs.nanolett.5c01511},
+  url={http://dx.doi.org/10.1021/acs.nanolett.5c01511},
+  issn={1530-6992},
+}
+\end{lstlisting}
+
+\subsection*{Example: Adding a new arXiv reference to your bibliography}
+Suppose you are writing a paper and all your references are in \texttt{bibliography.bib}. You are now reading an AMAZING paper on the arXiv. Just copy the URL and type:
+\begin{lstlisting}[language=bash]
+bibgrab -x https://arxiv.org/pdf/2410.17867 -a  -o bibliography.bib
+\end{lstlisting}
+Now you can start citing it!
+
+\subsection*{Example: Checking if an arXiv preprint has a published version}
+You bumped into this great paper and want to check if there is a published version. Just type:
+\begin{lstlisting}[language=bash]
+bibgrab -x 2410.17867 -no
+\end{lstlisting}
+See if bibgrab can find a published DOI!
+
+Happy (Bib)TeXing!
+
+\end{document}

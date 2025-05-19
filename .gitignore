@@ -1,0 +1,60 @@
+# Documentation
+docs/tex/*
+!docs/tex/*.tex
+!docs/tex/*.pdf
+
+# Cmake Stuff
+build
+testbuild
+build-debug
+build-no-vcpkg
+build-vcpkg-classic
+CMakeUserPresets.json
+*.cmake.h
+
+# Testing
+Scrap
+
+# project binaries
+bin
+lib
+include
+
+# VScode
+.vscode
+
+# Debugging
+*.dSYM
+
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app

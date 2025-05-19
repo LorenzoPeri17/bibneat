@@ -1,0 +1,85 @@
+name: Ubuntu
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  job:
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, ubuntu-24.04, ubuntu-22.04]
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+          fetch-depth: 0
+
+      - uses: lukka/get-cmake@latest
+        with:
+          cmakeVersion: "~3.25.0"  # use most recent 3.25.x version
+          ninjaVersion: "~1.12.0"  # use most recent 1.12.x version
+
+      - name: Setup vcpkg
+        uses: lukka/run-vcpkg@v11
+        id: runvcpkg
+        with:
+          # This specifies the location of vcpkg, where it is going to be restored from cache, or create from scratch.
+          vcpkgDirectory: '${{ runner.workspace }}/b/vcpkg'
+          # The Git commit id of vcpkg to be checked out. This is only needed because we are not using a submodule.
+          vcpkgGitCommitId: '984f9232b2fe0eb94f5e9f161d6c632c581fff0c'
+
+      - name: icu dependencies
+        shell: bash
+        run: sudo apt-get install autoconf automake autoconf-archive libicu-dev
+
+      - name: vcpkg update
+        shell: bash
+        run: sudo vcpkg update
+
+      - name: Cmake Configure
+        shell: bash
+        run: cmake --preset release 
+
+      - name: list libraries
+        shell: bash
+        run: ls build/vcpkg_installed/x64-linux/lib
+
+      - name: pkgconfig
+        shell: bash
+        run: pkg-config --libs icu-uc icu-io icu-i18n --with-path build/vcpkg_installed/x64-linux/lib/pkgconfig/
+
+      - name: Cmake build
+        shell: bash
+        run: cmake --build build 
+
+      - name: Cmake Test Configure
+        working-directory: './test'
+        shell: bash
+        run: cmake --preset test 
+
+      - name: Cmake Test Build
+        working-directory: './test'
+        shell: bash
+        run: cmake --build testbuild
+      
+      - name: Cmake Test run
+        working-directory: './test'
+        shell: bash
+        run: ctest --preset run_test
+
+      - name: Create binary artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: bibneat-${{ matrix.os }}
+          path: |
+              ./bin
+              ./lib
+              ./include
+          overwrite: true
+

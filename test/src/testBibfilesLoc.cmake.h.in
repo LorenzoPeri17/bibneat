@@ -1,0 +1,1 @@
+#cmakedefine TESTBIB_PATH "@TESTBIB_PATH@"

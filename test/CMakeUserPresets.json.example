@@ -1,0 +1,21 @@
+{
+  "version": 4,
+  "configurePresets": [
+    {
+      "name": "customtest",
+      "inherits": "test",
+      "environment": {
+        "VCPKG_ROOT": "<path/to/vcpkg>",
+        "CMAKE_MAKE_PROGRAM": "ninja",
+      }
+    },
+    {
+      "name": "customtest_online",
+      "inherits": "test_online",
+      "environment": {
+        "VCPKG_ROOT": "<path/to/vcpkg>",
+        "CMAKE_MAKE_PROGRAM": "ninja",
+      }
+    }
+  ]
+}
