@@ -14,6 +14,14 @@ endif()
 find_package(ICU REQUIRED COMPONENTS uc i18n io data)
 find_package(CURL REQUIRED)
 
+if (UNIX AND (NOT APPLE))
+    find_package (PkgConfig REQUIRED)
+    pkg_check_modules(ICU_PKG REQUIRED icu-io icu-uc icu-i18n)
+else()
+    set(ICU_PKG_LIBRARIES "")
+endif()
+
+
 # Gather CXX
 set(CXX_SUBMODULES database recipes utils cli uni)
 
@@ -72,9 +80,7 @@ set_target_properties(bibneat_shared PROPERTIES LINKER_LANGUAGE CXX)
 target_link_libraries(bibneat_shared PRIVATE ICU::uc ICU::i18n ICU::io ICU::data)
 target_link_libraries(bibneat_shared PRIVATE requests)
 set_property(TARGET bibneat_shared PROPERTY OUTPUT_NAME bibneat)
-if (UNIX)
-    target_link_libraries(bibneat_shared PRIVATE ICU::uc ICU::i18n ICU::io ICU::data)
-endif (UNIX)
+target_link_libraries(bibneat_shared PRIVATE ${ICU_PKG_LIBRARIES})
 
 # Static library
 add_library(bibneat_static STATIC ${BIBNEAT_CXX_SOURCES} ${BIBNEAT_CXX_HEADERS})
@@ -83,29 +89,18 @@ set_target_properties(bibneat_static PROPERTIES LINKER_LANGUAGE CXX)
 target_link_libraries(bibneat_static PUBLIC ICU::uc ICU::i18n ICU::io ICU::data)
 target_link_libraries(bibneat_static PRIVATE requests)
 set_property(TARGET bibneat_static PROPERTY OUTPUT_NAME bibneat)
-if (UNIX)
-    target_link_libraries(bibneat_static PUBLIC ICU::uc ICU::i18n ICU::io ICU::data)
-endif (UNIX)
-
+target_link_libraries(bibneat_static PUBLIC ${ICU_PKG_LIBRARIES})
 
 # Binaries
 add_executable(bibneat_bin src/bibneat.cpp)
 target_link_libraries(bibneat_bin PRIVATE bibneat_static)
 target_link_libraries(bibneat_bin PRIVATE requests)
 set_property(TARGET bibneat_bin PROPERTY OUTPUT_NAME bibneat)
-# if (MSVC)
-# else()
-#     target_compile_options(bibneat_bin PRIVATE -fno-exceptions)
-# endif()
 
 add_executable(bibgrab_bin src/bibgrab.cpp)
 target_link_libraries(bibgrab_bin PRIVATE bibneat_static)
 target_link_libraries(bibgrab_bin PRIVATE requests)
 set_property(TARGET bibgrab_bin PROPERTY OUTPUT_NAME bibgrab)
-# if (MSVC)
-# else()
-#     target_compile_options(bibgrab_bin PRIVATE -fno-exceptions)
-# endif()
 
 # Output directories
 set_target_properties(bibneat_bin PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
