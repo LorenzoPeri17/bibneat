@@ -2,7 +2,9 @@
   "name": "bibneat-test",
   "version": "1.0",
   "dependencies": [
+    "vcpkg-tool-ninja",
     "catch2",
-    "icu"
+    "icu",
+    "curl"
   ]
 }
