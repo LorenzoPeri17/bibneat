@@ -72,10 +72,9 @@ set_target_properties(bibneat_shared PROPERTIES LINKER_LANGUAGE CXX)
 target_link_libraries(bibneat_shared PRIVATE ICU::uc ICU::i18n ICU::io ICU::data)
 target_link_libraries(bibneat_shared PRIVATE requests)
 set_property(TARGET bibneat_shared PROPERTY OUTPUT_NAME bibneat)
-# if (MSVC)
-# else()
-#     target_compile_options(bibneat_shared PRIVATE -fno-exceptions)
-# endif()
+if (UNIX)
+    target_link_libraries(bibneat_shared PRIVATE ICU::uc ICU::i18n ICU::io ICU::data)
+endif (UNIX)
 
 # Static library
 add_library(bibneat_static STATIC ${BIBNEAT_CXX_SOURCES} ${BIBNEAT_CXX_HEADERS})
@@ -84,10 +83,10 @@ set_target_properties(bibneat_static PROPERTIES LINKER_LANGUAGE CXX)
 target_link_libraries(bibneat_static PUBLIC ICU::uc ICU::i18n ICU::io ICU::data)
 target_link_libraries(bibneat_static PRIVATE requests)
 set_property(TARGET bibneat_static PROPERTY OUTPUT_NAME bibneat)
-# if (MSVC)
-# else()
-#     target_compile_options(bibneat_static PRIVATE -fno-exceptions)
-# endif()
+if (UNIX)
+    target_link_libraries(bibneat_static PUBLIC ICU::uc ICU::i18n ICU::io ICU::data)
+endif (UNIX)
+
 
 # Binaries
 add_executable(bibneat_bin src/bibneat.cpp)

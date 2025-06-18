@@ -45,7 +45,7 @@
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build-vcpkg-classic",
       "environment": {
-        "VCPKG_MANIFEST_MODE": "disabled"
+        "VCPKG_MANIFEST_MODE": "OFF"
       },
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
