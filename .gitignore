@@ -5,7 +5,7 @@ docs/tex/*
 
 # Cmake Stuff
 build
-testbuild
+test-build
 build-debug
 build-no-vcpkg
 build-vcpkg-classic

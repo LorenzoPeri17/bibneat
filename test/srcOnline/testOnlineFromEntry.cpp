@@ -31,13 +31,13 @@ TEST_CASE("Testing arxiv bibneat", "[api]"){
         CHECK(bibDB->entries.front()->bibType == BT_ARXIV);
         CHECK(bibDB->entries.front()->bibKey == "vonneumann_arxiv_incomplete");
         apiCaller.checkArXiv(true, false);
-        CHECK(bibDB->entries.front()->keep == false);
-        CHECK(bibDB->entries.back()->keep == true);
-        CHECK(bibDB->entries.back()->bibKey == "vonneumann_arxiv_incomplete");
-        REQUIRE(bibDB->entries.back()->attributes.contains("author"));
-        CHECK(bibDB->entries.back()->attributes.at("author")=="John von Neumann");
-        REQUIRE(bibDB->entries.back()->attributes.contains("eprint"));
-        CHECK(bibDB->entries.back()->attributes.at("eprint")=="1003.2133");
+        REQUIRE(bibDB->entries.size() == 1);
+        CHECK(bibDB->entries.front()->keep == true);
+        CHECK(bibDB->entries.front()->bibKey == "vonneumann_arxiv_incomplete");
+        REQUIRE(bibDB->entries.front()->attributes.contains("author"));
+        CHECK(bibDB->entries.front()->attributes.at("author")=="John von Neumann");
+        REQUIRE(bibDB->entries.front()->attributes.contains("eprint"));
+        CHECK(bibDB->entries.front()->attributes.at("eprint")=="1003.2133");
     }
 
     SECTION("Replacement with doi"){
@@ -46,14 +46,13 @@ TEST_CASE("Testing arxiv bibneat", "[api]"){
         CHECK(bibDB->entries.front()->bibType == BT_ARXIV);
         CHECK(bibDB->entries.front()->bibKey == "vonneumann_arxiv_incomplete");
         apiCaller.checkArXiv(true, true);
-        CHECK(bibDB->entries.front()->keep == false);
-        CHECK(bibDB->entries.back()->keep == true);
-        CHECK(bibDB->entries.back()->bibKey == "vonneumann_arxiv_incomplete");
-        CHECK_FALSE(bibDB->entries.front()->attributes.contains("author"));
-        REQUIRE(bibDB->entries.back()->attributes.contains("author"));
-        CHECK(bibDB->entries.back()->attributes.at("author")=="von Neumann, J.");
-        REQUIRE(bibDB->entries.back()->attributes.contains("journal"));
-        CHECK(bibDB->entries.back()->attributes.at("journal")=="The European Physical Journal H");
+        REQUIRE(bibDB->entries.size() == 1);
+        CHECK(bibDB->entries.front()->keep == true);
+        CHECK(bibDB->entries.front()->bibKey == "vonneumann_arxiv_incomplete");
+        REQUIRE(bibDB->entries.front()->attributes.contains("author"));
+        CHECK(bibDB->entries.front()->attributes.at("author")=="von Neumann, J.");
+        REQUIRE(bibDB->entries.front()->attributes.contains("journal"));
+        CHECK(bibDB->entries.front()->attributes.at("journal")=="The European Physical Journal H");
     }
 
 }
@@ -86,14 +85,13 @@ TEST_CASE("Testing DOI bibneat", "[api]"){
         CHECK(bibDB->entries.front()->bibType == BT_ARTICLE);
         CHECK(bibDB->entries.front()->bibKey == "vonneumann_doi_incomplete");
         apiCaller.checkDOI(true);
-        CHECK(bibDB->entries.front()->keep == false);
-        CHECK(bibDB->entries.back()->keep == true);
-        CHECK(bibDB->entries.back()->bibKey == "vonneumann_doi_incomplete");
-        CHECK_FALSE(bibDB->entries.front()->attributes.contains("author"));
-        REQUIRE(bibDB->entries.back()->attributes.contains("author"));
-        CHECK(bibDB->entries.back()->attributes.at("author")=="von Neumann, J.");
-        REQUIRE(bibDB->entries.back()->attributes.contains("journal"));
-        CHECK(bibDB->entries.back()->attributes.at("journal")=="The European Physical Journal H");
+        CHECK(bibDB->entries.size() == 1);
+        CHECK(bibDB->entries.front()->keep == true);
+        CHECK(bibDB->entries.front()->bibKey == "vonneumann_doi_incomplete");
+        REQUIRE(bibDB->entries.front()->attributes.contains("author"));
+        CHECK(bibDB->entries.front()->attributes.at("author")=="von Neumann, J.");
+        REQUIRE(bibDB->entries.front()->attributes.contains("journal"));
+        CHECK(bibDB->entries.front()->attributes.at("journal")=="The European Physical Journal H");
     }
 
 }

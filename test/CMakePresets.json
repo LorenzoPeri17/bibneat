@@ -11,35 +11,17 @@
       "displayName": "Catch2 Tests",
       "description": "Tests with Catch2",
       "generator": "Ninja",
-      "binaryDir": "${sourceDir}/testbuild",
+      "binaryDir": "${sourceDir}/test-build",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
-        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
-      }
-    },
-    {
-      "name": "test_online",
-      "displayName": "Catch2 Tests",
-      "description": "Tests with Catch2",
-      "generator": "Ninja",
-      "binaryDir": "${sourceDir}/testbuild",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release",
-        "DO_ONLINE_TESTS": "",
         "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
       }
     }
   ],
   "testPresets": [
     {
-      "name": "run_test",
+      "name": "run-test",
       "configurePreset": "test",
-      "output": {"outputOnFailure": true},
-      "execution": {"noTestsAction": "error", "stopOnFailure": true}
-    },
-    {
-      "name": "run_online",
-      "configurePreset": "test_online",
       "output": {"outputOnFailure": true},
       "execution": {"noTestsAction": "error", "stopOnFailure": true}
     }

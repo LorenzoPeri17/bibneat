@@ -124,7 +124,7 @@ TEST_CASE("Testing the bibtex parser", "[parsing]"){
                 "number={752},\n"
                 "volume={109},\n"
                 "}";
-                const bool success = parser.parseString(apiBib);
+                REQUIRE(parser.parseString(apiBib));
                 CHECK(bibDB->entries.size() == 1);
                 CHECK(bibDB->entries.front()->bibKey == "Dirac_1925");
             }
@@ -139,7 +139,7 @@ TEST_CASE("Testing the bibtex parser", "[parsing]"){
                 "      primaryClass={quant-ph},\n"
                 "      url={https://arxiv.org/abs/2106.10522}, \n"
                 "}";
-                const bool success = parser.parseString(apiBib);
+                REQUIRE(parser.parseString(apiBib));
                 CHECK(bibDB->entries.size() == 1);
                 CHECK(bibDB->entries.front()->bibKey == "preskill2023quantumcomputing40years");
             }
