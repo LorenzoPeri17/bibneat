@@ -1,7 +1,7 @@
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
-const createBibneatModule = require('../lib/bibneat.js');
+const createBibneatModule = require('../lib/node/bibneat.js');
 
 createBibneatModule().then(Module => {
   const db = new Module.BibDB();

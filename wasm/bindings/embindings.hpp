@@ -67,7 +67,6 @@ EMSCRIPTEN_BINDINGS(bibneat_module) {
         .function("NFCNormalize", &FieldNormalizer::NFCNormalize)
         .function("NFKCNormalize", &FieldNormalizer::NFKCNormalize)
         .function("uni2latex", &FieldNormalizer::uni2latex)
-        .property("UError", &FieldNormalizer::UError)
         ;
 
     class_<Printer>("Printer")

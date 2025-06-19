@@ -34,6 +34,8 @@ ENDFOREACH()
 
 # setup output dirs
 make_directory(${CMAKE_SOURCE_DIR}/lib)
+make_directory(${CMAKE_SOURCE_DIR}/lib/node)
+make_directory(${CMAKE_SOURCE_DIR}/lib/web)
 
 # Build requests as a C static library
 add_library(requests STATIC ${BIBNEAT_C_SOURCES} ${BIBNEAT_C_HEADERS})
@@ -54,16 +56,32 @@ target_link_libraries(bibneat_static PUBLIC ${ICU_PKG_LIBRARIES})
 set(EMBINDINGS_SRC ${CMAKE_SOURCE_DIR}/bindings/embindings.cpp)
 set(EMBINDINGS_HEADERS ${CMAKE_SOURCE_DIR}/bindings/embindings.hpp)
 
+set(EMCXX_LINK_FLAGS "-lembind -sWASM=1 -sNO_EXIT_RUNTIME=1 -sALLOW_MEMORY_GROWTH=1 -sMODULARIZE=1 -sEXPORT_NAME=createBibneatModule -sEXPORTED_RUNTIME_METHODS=ccall,cwrap")
+
 # WASM library target for embind
 add_executable(bibneat_wasm ${EMBINDINGS_SRC} ${EMBINDINGS_HEADERS})
 target_include_directories(bibneat_wasm PRIVATE ../src ${CMAKE_SOURCE_DIR}/bindings)
-target_link_libraries(bibneat_static PRIVATE ${ICU_PKG_LIBRARIES})
+target_link_libraries(bibneat_wasm PRIVATE ${ICU_PKG_LIBRARIES})
 target_link_libraries(bibneat_wasm PRIVATE "-Wl,--whole-archive" bibneat_static)
 set_target_properties(bibneat_wasm 
     PROPERTIES 
     OUTPUT_NAME "bibneat"
     SUFFIX ".js"
-    LINK_FLAGS "-lembind -s WASM=1 -s NO_EXIT_RUNTIME=1 -s ALLOW_MEMORY_GROWTH=1 -sMODULARIZE=1 -sEXPORT_NAME=createBibneatModule -sEXPORTED_RUNTIME_METHODS=ccall,cwrap"
+    LINK_FLAGS "${EMCXX_LINK_FLAGS} -sENVIRONMENT=node"
 )
 
-set_target_properties(bibneat_wasm PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
+set_target_properties(bibneat_wasm PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib/node)
+
+# WASM library target for embind
+add_executable(bibneat_web ${EMBINDINGS_SRC} ${EMBINDINGS_HEADERS})
+target_include_directories(bibneat_web PRIVATE ../src ${CMAKE_SOURCE_DIR}/bindings)
+target_link_libraries(bibneat_web PRIVATE ${ICU_PKG_LIBRARIES})
+target_link_libraries(bibneat_web PRIVATE "-Wl,--whole-archive" bibneat_static)
+set_target_properties(bibneat_web 
+    PROPERTIES 
+    OUTPUT_NAME "bibneat"
+    SUFFIX ".js"
+    LINK_FLAGS "${EMCXX_LINK_FLAGS} -sENVIRONMENT=web"
+)
+
+set_target_properties(bibneat_web PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib/web)
