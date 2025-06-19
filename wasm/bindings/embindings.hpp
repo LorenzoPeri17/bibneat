@@ -32,8 +32,12 @@ EMSCRIPTEN_BINDINGS(bibneat_module) {
         ;
 
     class_<BibDB>("BibDB")
-        .constructor<>()
+        .smart_ptr_constructor("BibDB", &std::make_shared<BibDB>)
+        .function("clear", &BibDB::clear)
+        .function("cleanup", &BibDB::cleanup)
         .function("countKeep", &BibDB::countKeep)
+        .property("numEntries", &BibDB::numEntries)
+        .property("numSpecialEntries", &BibDB::numSpecialEntries)
         ;
 
     class_<Parser>("Parser")
