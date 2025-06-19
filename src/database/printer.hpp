@@ -1,6 +1,8 @@
 #pragma once
 
 #include <fstream>
+#include <ostream>
+#include <sstream>
 #include <string>
 #include <unordered_map>
 #include <array>
@@ -12,6 +14,8 @@
 
 #include "bibfile.hpp"
 
+#define OUTSTRING_RESERVE_PER_ENTRY 750
+
 class Printer {
 public:
 
@@ -22,14 +26,19 @@ public:
     virtual ~Printer(){}
 
     bool toBibFile(std::string fname, bool overwrite = true);
+    std::string toString();
 
 private:
     // bib file
     std::string fname;
     std::ofstream file;
+    std::ostream *stream;
+
     std::shared_ptr<BibDB> bibDB;
     void writeBibEntry(BibEntry *entry) noexcept;
     void writeSpecialEntry(SpecialEntry *entry) noexcept;
+
+    void writeDBToStream() noexcept;
 
     // styling
     const std::array<std::string,4> priorityKeys = {"title","author","year","journal"};

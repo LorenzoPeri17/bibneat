@@ -73,6 +73,7 @@ EMSCRIPTEN_BINDINGS(bibneat_module) {
     class_<Printer>("Printer")
         .constructor<std::shared_ptr<BibDB>>()
         .function("toBibFile", &Printer::toBibFile)
+        .function("toString", &Printer::toString)
         ;
 }
 

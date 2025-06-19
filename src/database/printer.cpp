@@ -13,10 +13,29 @@ bool Printer::toBibFile(std::string fname, bool overwrite){
     }
     replaceTilde(fname);
     this->file = std::ofstream(fname, openMode);
-
     if (!this->file.is_open()) {
         return false;
     }
+    this->stream=dynamic_cast<std::ostream*>(&file);
+
+    this->writeDBToStream();
+
+    this->file.close();
+    this->stream = nullptr;
+    return true;
+}
+
+std::string Printer::toString(){
+    std::ostringstream oss;
+    this->stream = dynamic_cast<std::ostream*>(&oss);
+
+    this->writeDBToStream();
+
+    this->stream = nullptr;
+    return oss.str();
+}
+
+void Printer::writeDBToStream() noexcept{
 
     for (auto& specialEntry: this->bibDB->specialEntries){
         // This is fine because we guarantee that entry will survive the call
@@ -33,19 +52,18 @@ bool Printer::toBibFile(std::string fname, bool overwrite){
         this->writeBibEntry(entry.get()); 
     }
 
-    return true;
 }
 
 void Printer::writeBibEntry(BibEntry *entry) noexcept{
 
-    this->file << "@" << entry->bibTypeName << "{" << entry->bibKey << "," << std::endl;
+    *(this->stream) << "@" << entry->bibTypeName << "{" << entry->bibKey << "," << std::endl;
 
     std::unordered_map<std::string,std::string>::const_iterator found;
     for (auto& key : this->priorityKeys){
         found = entry->attributes.find(key);
         if (found != entry->attributes.end()){ // found
             if (entry->keepAttributes.find(key)->second){
-                this->file << "  " << key << "={" << found->second << "}," << std::endl;
+                *(this->stream) << "  " << key << "={" << found->second << "}," << std::endl;
             }
         }
     }
@@ -63,17 +81,17 @@ void Printer::writeBibEntry(BibEntry *entry) noexcept{
         if (skipKey) continue;
         if (entry->keepAttributes.find(key)->second){
             if(writeComma){
-                this->file << "," << std::endl;
+                *(this->stream) << "," << std::endl;
             }
-            this->file << "  " << key << "={" << value << "}";
+            *(this->stream) << "  " << key << "={" << value << "}";
             // trailing commas are NOT allowed in BibTex...
             writeComma = true;
         }
     }
 
-    this->file << std::endl << "}" << std::endl << std::endl;
+    *(this->stream) << std::endl << "}" << std::endl << std::endl;
 }
 
 void Printer::writeSpecialEntry(SpecialEntry *entry) noexcept{
-    this->file << "@" << entry->bibTypeName << "{" << entry->body << "}" << std::endl << std::endl;
+    *(this->stream) << "@" << entry->bibTypeName << "{" << entry->body << "}" << std::endl << std::endl;
 }
