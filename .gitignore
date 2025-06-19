@@ -20,6 +20,9 @@ bin
 lib
 include
 
+# keep the compiled wasm tho
+!wasm/lib
+
 # VScode
 .vscode
 
