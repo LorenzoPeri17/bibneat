@@ -46,7 +46,7 @@ target_link_directories(tests PRIVATE ../lib)
 set_property(TARGET tests PROPERTY OUTPUT_NAME bibneat_tests)
 set_target_properties(tests PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 
-add_test(NAME tests COMMAND ${CMAKE_SOURCE_DIR}/bin/bibneat_tests --reporter compact)
+add_test(NAME tests COMMAND ${CMAKE_SOURCE_DIR}/bin/bibneat_tests --order=rand --reporter=compact)
 
 # Online tests
 add_executable(tests_online ${CXX_ONLINE_TEST_SRC})
@@ -62,4 +62,4 @@ target_link_directories(tests_online PRIVATE ../lib)
 set_property(TARGET tests_online PROPERTY OUTPUT_NAME bibneat_online_tests)
 set_target_properties(tests_online PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 
-add_test(NAME tests_online COMMAND ${CMAKE_SOURCE_DIR}/bin/bibneat_online_tests --reporter compact)
+add_test(NAME tests_online COMMAND ${CMAKE_SOURCE_DIR}/bin/bibneat_online_tests --order=rand --reporter=compact)

@@ -85,8 +85,11 @@ public:
     BibType bibType;
     void findBibType() noexcept;
 
+    const uint64_t index;
+
 private:
     void checkArXiv() noexcept;
+    static uint64_t indexGen;
 };
 
 class SpecialEntry{

@@ -14,8 +14,6 @@
 
 #include "bibfile.hpp"
 
-#define OUTSTRING_RESERVE_PER_ENTRY 750
-
 class Printer {
 public:
 

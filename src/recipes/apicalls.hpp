@@ -46,6 +46,9 @@ public:
     long totTimeout;
 
 protected: // protected for testing
+
+    std::shared_ptr<BibDB> bibDB;
+
     const std::string getArXivId(const BibEntry* entry) noexcept;
     void checkArXivEntry(BibEntry* entry, const bool replaceWithArxiv, const bool replaceWithDoi) noexcept;
     const std::string prepArXiv(const std::string arxiv) noexcept;
@@ -54,18 +57,18 @@ protected: // protected for testing
     const std::string prepDOI(const std::string doi) noexcept;
     void checkDOIEntry(BibEntry* entry, const bool replaceWithDoi, const std::string doi, const bool useString) noexcept;
 
-private:
-    std::shared_ptr<BibDB> bibDB;
-    const uint32_t N_RESERVE_API_BIB = 2<<20;
-    std::unique_ptr<char[]> CapiBib;
-    std::string apiBib;
-    uint32_t NapiBib;
+    const uint32_t N_REQUEST_BEFORE_CLEAN = 50;
 
     const bool verbose;
 
     std::shared_ptr<BibDB> shadowDB;
     Parser shadowParser;
-    const uint32_t N_REQUEST_BEFORE_CLEAN = 50;
+
+private:
+    const uint32_t N_RESERVE_API_BIB = 2<<20;
+    std::unique_ptr<char[]> CapiBib;
+    std::string apiBib;
+    uint32_t NapiBib;
 
     bool getFromArXivApi(const BibEntry* entry) noexcept;
     bool getFromDOIApi(const BibEntry* entry) noexcept;

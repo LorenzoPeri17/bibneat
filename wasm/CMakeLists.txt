@@ -23,6 +23,7 @@ ENDFOREACH()
 
 # Gather C
 set(C_SUBMODULES requests)
+
 set(BIBNEAT_C_SOURCES "")
 set(BIBNEAT_C_HEADERS "")
 FOREACH(mod ${C_SUBMODULES})
@@ -30,6 +31,18 @@ FOREACH(mod ${C_SUBMODULES})
     file(GLOB_RECURSE headers ../src/${mod}/*.h)
     list(APPEND BIBNEAT_C_SOURCES ${sources})
     list(APPEND BIBNEAT_C_HEADERS ${headers})
+ENDFOREACH()
+
+# Gather JS handlers
+set(CXX_JSGLUE_SUBMODULES handlers)
+set(CXX_JSGLUE_INCLUDE handlers)
+
+FOREACH(mod ${CXX_JSGLUE_SUBMODULES})
+    file(GLOB_RECURSE sources ${mod}/*.cpp)
+    file(GLOB_RECURSE headers ${mod}/*.hpp)
+    list(APPEND BIBNEAT_CXX_SOURCES ${sources})
+    list(APPEND BIBNEAT_CXX_HEADERS ${headers})
+    list(APPEND CXX_JSGLUE_INCLUDE ${mod})
 ENDFOREACH()
 
 # setup output dirs
@@ -60,7 +73,7 @@ set(EMCXX_LINK_FLAGS "-lembind -sWASM=1 -sNO_EXIT_RUNTIME=1 -sALLOW_MEMORY_GROWT
 
 # WASM library target for embind
 add_executable(bibneat_wasm ${EMBINDINGS_SRC} ${EMBINDINGS_HEADERS})
-target_include_directories(bibneat_wasm PRIVATE ../src ${CMAKE_SOURCE_DIR}/bindings)
+target_include_directories(bibneat_wasm PRIVATE ../src ${CMAKE_SOURCE_DIR}/bindings ${CXX_JSGLUE_INCLUDE})
 target_link_libraries(bibneat_wasm PRIVATE ${ICU_PKG_LIBRARIES})
 target_link_libraries(bibneat_wasm PRIVATE "-Wl,--whole-archive" bibneat_static)
 set_target_properties(bibneat_wasm 
@@ -74,7 +87,7 @@ set_target_properties(bibneat_wasm PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_S
 
 # WASM library target for embind
 add_executable(bibneat_web ${EMBINDINGS_SRC} ${EMBINDINGS_HEADERS})
-target_include_directories(bibneat_web PRIVATE ../src ${CMAKE_SOURCE_DIR}/bindings)
+target_include_directories(bibneat_web PRIVATE ../src ${CMAKE_SOURCE_DIR}/bindings ${CXX_JSGLUE_INCLUDE})
 target_link_libraries(bibneat_web PRIVATE ${ICU_PKG_LIBRARIES})
 target_link_libraries(bibneat_web PRIVATE "-Wl,--whole-archive" bibneat_static)
 set_target_properties(bibneat_web 

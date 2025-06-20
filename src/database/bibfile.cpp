@@ -1,9 +1,13 @@
 #include "./bibfile.hpp"
 
+uint64_t BibEntry::indexGen = 0;
+
 BibEntry::BibEntry(
     std::string bibTypeName, 
     std::string bibKey) : 
-    bibKey(bibKey), bibTypeName(bibTypeName)
+    bibKey(bibKey), 
+    bibTypeName(bibTypeName),
+    index(this->indexGen++)
     {
     this->keep = true;
     this->doiChecked = false;

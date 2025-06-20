@@ -1,12 +1,17 @@
+#pragma once
+
 #include <emscripten.h>
 #include <emscripten/bind.h>
+
+#include <stdint.h>
 
 #include "../../src/database/bibfile.hpp"
 #include "../../src/database/parser.hpp"
 #include "../../src/recipes/fieldfilter.hpp"
-#include "../../src/recipes/apicalls.hpp"
 #include "../../src/uni/fieldnormalization.hpp"
 #include "../../src/database/printer.hpp"
+
+#include "../handlers/jsapihandler.hpp"
 
 using namespace emscripten;
 
@@ -51,16 +56,6 @@ EMSCRIPTEN_BINDINGS(bibneat_module) {
         .function("keepBibTex", &FieldFilter::keepBibTex)
         ;
 
-    class_<ApiCaller>("ApiCaller")
-        .constructor<std::shared_ptr<BibDB>, long, long, const bool>()
-        .function("checkArXiv", &ApiCaller::checkArXiv)
-        .function("getArXivImmediate", &ApiCaller::getArXivImmediate)
-        .function("checkDOI", &ApiCaller::checkDOI)
-        .function("getDOIImmediate", &ApiCaller::getDOIImmediate)
-        .property("connTimeout", &ApiCaller::connTimeout)
-        .property("totTimeout", &ApiCaller::totTimeout)
-        ;
-
     class_<FieldNormalizer>("FieldNormalizer")
         .constructor<std::shared_ptr<BibDB>>()
         .function("addUTF8Preamble", &FieldNormalizer::addUTF8Preamble)
@@ -74,5 +69,21 @@ EMSCRIPTEN_BINDINGS(bibneat_module) {
         .function("toBibFile", &Printer::toBibFile)
         .function("toString", &Printer::toString)
         ;
+
+    class_<JsApiHandler>("JsApiHandler")
+        .constructor<std::shared_ptr<BibDB>>()
+        .function("getPrepArXiv", &JsApiHandler::getPrepArXiv)
+        .function("getPrepDOI", &JsApiHandler::getPrepDOI)
+        .function("getArXivIds", &JsApiHandler::getArXivIds)
+        .function("getDOIs", &JsApiHandler::getDOIs)
+        .function("getBibKeysFromIndex", &JsApiHandler::getBibKeysFromIndex)
+        .function("updateArXivFromResponseAndGetDOIs", &JsApiHandler::updateArXivFromResponseAndGetDOIs)
+        .function("updateDOIFromResponse", &JsApiHandler::updateDOIFromResponse)
+        ;
+
+    register_vector<uint64_t>("Uint64Vector");
+    register_vector<std::string>("StringVector");
+    register_vector<std::pair<uint64_t, std::string>>("Uint64StringPairVector");
+    register_map<uint64_t, std::string>("Uint64StringMap");
 }
 
