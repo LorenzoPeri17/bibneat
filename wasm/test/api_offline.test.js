@@ -32,5 +32,24 @@ createBibneatModule().then(Module => {
       assert.strictEqual(arXivId,expectedArXivIds[i]);
   }
 
+  const replaceEntry = "@article{Newman_1942,\n" + 
+    "  title={On a String Problem of Dirac},\n" +
+    "  author={Newman, M. H. A.},\n" +
+    "  year={1942},\n" +
+    "  journal={Journal of the London Mathematical Society},\n" +
+    "  volume={s1-17},\n" +
+    "  doi={10.1112/jlms/s1-17.3.173},\n" +
+    "  issn={1469-7750},\n" +
+    "  pages={173-177},\n" +
+    "  language={en},\n" +
+    "  number={3}\n" +
+    "}\n\n"
+
+  const vecI = new Module.Uint64Vector();
+  const vecS = new Module.StringVector();
+  vecI.push_back(1);
+  vecS.push_back(replaceEntry);
+  api.updateDOIFromResponse(vecI, vecS);
+
   console.log('API offline tests passed.');
 });

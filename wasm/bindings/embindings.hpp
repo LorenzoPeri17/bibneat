@@ -77,13 +77,16 @@ EMSCRIPTEN_BINDINGS(bibneat_module) {
         .function("getArXivIds", &JsApiHandler::getArXivIds)
         .function("getDOIs", &JsApiHandler::getDOIs)
         .function("getBibKeysFromIndex", &JsApiHandler::getBibKeysFromIndex)
+        .function("setUnkeepFromIndex", &JsApiHandler::setUnkeepFromIndex)
         .function("updateArXivFromResponseAndGetDOIs", &JsApiHandler::updateArXivFromResponseAndGetDOIs)
         .function("updateDOIFromResponse", &JsApiHandler::updateDOIFromResponse)
+        .function("addFromArXivResponseAndGetDoi", &JsApiHandler::addFromArXivResponseAndGetDoi)
+        .function("addFromDOIResponse", &JsApiHandler::addFromDOIResponse)
         ;
 
     register_vector<uint64_t>("Uint64Vector");
+    register_vector<size_t>("SizeTVector");
     register_vector<std::string>("StringVector");
-    register_vector<std::pair<uint64_t, std::string>>("Uint64StringPairVector");
     register_map<uint64_t, std::string>("Uint64StringMap");
 }
 

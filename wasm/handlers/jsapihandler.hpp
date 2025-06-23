@@ -33,9 +33,13 @@ public:
     std::map<uint64_t,std::string> getDOIs();
 
     std::string getBibKeysFromIndex(uint64_t index);
+    void setUnkeepFromIndex(uint64_t index);
 
-    std::map<uint64_t,std::string> updateArXivFromResponseAndGetDOIs(std::vector<std::pair<uint64_t, std::string>> res, const bool doReplace);
-    void updateDOIFromResponse(std::vector<std::pair<uint64_t, std::string>> res);
+    std::map<uint64_t,std::string> updateArXivFromResponseAndGetDOIs(std::vector<uint64_t> indices, std::vector<std::string> bibTex, const bool doReplace);
+    void updateDOIFromResponse(std::vector<uint64_t> indices, std::vector<std::string> bibTex);
+
+    std::map<uint64_t,std::string> addFromArXivResponseAndGetDoi(std::string res);
+    void addFromDOIResponse(std::string res);
 
 private:
     std::map<uint64_t, size_t> indexToPos;

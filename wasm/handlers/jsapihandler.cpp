@@ -1,14 +1,17 @@
 #include "jsapihandler.hpp"
 
+#define MIN(a,b) \
+        (a < b) ? a : b
+
 inline void JsApiHandler::recomputePositions() noexcept{
-    size_t idx = 0;
+    size_t pos = 0;
     this->indexToPos.clear();
     for (auto& entry: this->bibDB->entries){
-        idx++;
         if (entry==nullptr){
+            pos++;
             continue;
         }
-        this->indexToPos.at(entry->index)=idx;
+        this->indexToPos[entry->index]=pos++;
     }
 }
 
@@ -55,6 +58,7 @@ std::map<uint64_t,std::string> JsApiHandler::getDOIs(){
 }
 
 inline BibEntry* JsApiHandler::getEntryFromIndex(uint64_t index){
+    if(!(KEY_EXISTS(this->indexToPos, index)))[[unlikely]]{this->recomputePositions();}
     if(!(KEY_EXISTS(this->indexToPos, index)))[[unlikely]]{return nullptr;}
     size_t pos=this->indexToPos.at(index);
     if(pos>this->bibDB->numEntries-1)[[unlikely]]{return nullptr;}
@@ -64,8 +68,10 @@ inline BibEntry* JsApiHandler::getEntryFromIndex(uint64_t index){
 }
 
 std::map<uint64_t,std::string> JsApiHandler::updateArXivFromResponseAndGetDOIs(
-                        std::vector<std::pair<uint64_t, std::string>> res, 
+                        std::vector<uint64_t> indices, 
+                        std::vector<std::string> bibTex,
                         const bool doReplace){
+    const uint64_t nEntries = MIN(indices.size(), bibTex.size());
     size_t ncalls = 0;
     uint64_t indexToReturn;
     BibEntry *oldEntry;
@@ -75,17 +81,19 @@ std::map<uint64_t,std::string> JsApiHandler::updateArXivFromResponseAndGetDOIs(
     }
     this->shadowDB->clear();
     std::map<uint64_t,std::string> resHolder;
-    for(auto& [index, bibTex] : res){
-        if(!(this->shadowParser.parseString(bibTex))){continue;};
-        newEntry = this->bibDB->entries.back().get();
+    for(size_t idx = 0; idx<nEntries; idx++){
+        auto entryIndex = indices.at(idx);
+        auto tex = bibTex.at(idx);
+        if(!(this->shadowParser.parseString(tex))){continue;};
+        newEntry = this->shadowDB->entries.back().get();
+        oldEntry = this->getEntryFromIndex(entryIndex);
+        if(!oldEntry){continue;}
         if(doReplace){
-            oldEntry = this->getEntryFromIndex(index);
-            if(!oldEntry){continue;}
             oldEntry->keep=false;
             newEntry->bibKey = oldEntry->bibKey;
             newEntry->arxivChecked = true;
-            this->bibDB->addEntry(std::move(this->shadowDB->entries.back()));
             indexToReturn = newEntry->index;
+            this->bibDB->addEntry(std::move(this->shadowDB->entries.back()));
             this->shadowDB->clear(); 
             if((++ncalls)>=this->N_REQUEST_BEFORE_CLEAN){
                 this->bibDB->cleanup();
@@ -93,13 +101,14 @@ std::map<uint64_t,std::string> JsApiHandler::updateArXivFromResponseAndGetDOIs(
                 ncalls=0;
             }
         } else{
-            indexToReturn = index;
+            indexToReturn = oldEntry->index;
         }
         if(this->hasDOI(newEntry)){
             resHolder[indexToReturn] = this->getPrepDOIFromEntry(newEntry);
         }
         this->shadowDB->clear(); 
     }
+    this->bibDB->cleanup();
     return resHolder;
 }
 
@@ -109,15 +118,23 @@ std::string JsApiHandler::getBibKeysFromIndex(uint64_t index){
     return entry->bibKey;
 }
 
-void JsApiHandler::updateDOIFromResponse(std::vector<std::pair<uint64_t, std::string>> res){
+void JsApiHandler::setUnkeepFromIndex(uint64_t index){
+    BibEntry* entry = this->getEntryFromIndex(index);
+    if(entry){entry->keep = false;}
+}
+
+void JsApiHandler::updateDOIFromResponse(std::vector<uint64_t> indices, std::vector<std::string> bibTex){
+    const uint64_t nEntries = MIN(indices.size(), bibTex.size());
     size_t ncalls = 0;
     BibEntry *oldEntry;
     BibEntry *newEntry;
     this->recomputePositions();
-    for(auto& [index, bibTex] : res){
-        oldEntry = this->getEntryFromIndex(index);
+    for(size_t idx = 0; idx<nEntries; idx++){
+        auto entryIndex = indices.at(idx);
+        auto tex = bibTex.at(idx);
+        oldEntry = this->getEntryFromIndex(entryIndex);
         if(!oldEntry){continue;}
-        if(!(this->directParser.parseString(bibTex))){continue;};
+        if(!(this->directParser.parseString(tex))){continue;};
         newEntry = this->bibDB->entries.back().get();
         oldEntry->keep=false;
         newEntry->bibKey = oldEntry->bibKey;
@@ -128,5 +145,23 @@ void JsApiHandler::updateDOIFromResponse(std::vector<std::pair<uint64_t, std::st
             ncalls=0;
         }
     }
+    this->bibDB->cleanup();
 }
 
+std::map<uint64_t,std::string> JsApiHandler::addFromArXivResponseAndGetDoi(std::string res){
+    this->directParser.parseString(res);
+    BibEntry* entry = this->bibDB->entries.back().get();
+    entry->arxivChecked = true;
+    std::map<uint64_t,std::string> responseHolder;
+    if(this->hasDOI(entry)){
+        const std::string doi =  entry->attributes.at("doi");
+        const uint64_t index = entry->index;
+        responseHolder[index] = doi;
+    }
+    return responseHolder;
+}
+
+void JsApiHandler::addFromDOIResponse(std::string res){
+    this->directParser.parseString(res);
+    this->bibDB->entries.back()->doiChecked = true;
+}
