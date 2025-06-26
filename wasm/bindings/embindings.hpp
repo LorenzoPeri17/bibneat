@@ -68,6 +68,7 @@ EMSCRIPTEN_BINDINGS(bibneat_module) {
         .constructor<std::shared_ptr<BibDB>>()
         .function("toBibFile", &Printer::toBibFile)
         .function("toString", &Printer::toString)
+        .function("toEntriesAndKeys", &Printer::toEntriesAndKeys)
         ;
 
     class_<JsApiHandler>("JsApiHandler")
@@ -88,5 +89,6 @@ EMSCRIPTEN_BINDINGS(bibneat_module) {
     register_vector<size_t>("SizeTVector");
     register_vector<std::string>("StringVector");
     register_map<uint64_t, std::string>("Uint64StringMap");
+    register_map<std::string, std::string>("StringStringMap");
 }
 

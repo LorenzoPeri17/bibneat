@@ -4,13 +4,29 @@
     {
         "name": "debug",
         "generator": "Ninja",
-        "binaryDir": "${sourceDir}/build",
+        "binaryDir": "${sourceDir}/build-debug",
         "architecture": {
           "value": "arm64",
           "strategy": "external"
         },
         "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+        "VCPKG_TARGET_TRIPLET" : "wasm32-emscripten",
+        "VCPKG_CHAINLOAD_TOOLCHAIN_FILE": "$env{EMSDK}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake",
+        "LDFLAGS": ""
+        }
+    },
+    {
+        "name": "release",
+        "generator": "Ninja",
+        "binaryDir": "${sourceDir}/build",
+        "architecture": {
+          "value": "arm64",
+          "strategy": "external"
+        },
+        "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
         "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
         "VCPKG_TARGET_TRIPLET" : "wasm32-emscripten",
         "VCPKG_CHAINLOAD_TOOLCHAIN_FILE": "$env{EMSDK}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake",

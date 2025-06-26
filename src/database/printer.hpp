@@ -5,6 +5,7 @@
 #include <sstream>
 #include <string>
 #include <unordered_map>
+#include <map>
 #include <array>
 #include <memory>
 
@@ -25,6 +26,7 @@ public:
 
     bool toBibFile(std::string fname, bool overwrite = true);
     std::string toString();
+    std::map<std::string,std::string> toEntriesAndKeys();
 
 private:
     // bib file

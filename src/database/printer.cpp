@@ -95,3 +95,27 @@ void Printer::writeBibEntry(BibEntry *entry) noexcept{
 void Printer::writeSpecialEntry(SpecialEntry *entry) noexcept{
     *(this->stream) << "@" << entry->bibTypeName << "{" << entry->body << "}" << std::endl << std::endl;
 }
+
+std::map<std::string,std::string> Printer::toEntriesAndKeys(){
+
+    std::map<std::string,std::string> resHolder;
+
+    for (auto& specialEntry: this->bibDB->specialEntries){
+        std::ostringstream oss;
+        this->stream = dynamic_cast<std::ostream*>(&oss);
+        this->writeSpecialEntry(specialEntry.get()); 
+        resHolder["@special"] = oss.str();
+    }
+    
+    for (auto& entry: this->bibDB->entries){
+        if(!(entry->keep)){
+            continue;
+        }
+        std::ostringstream oss;
+        this->stream = dynamic_cast<std::ostream*>(&oss);
+        this->writeBibEntry(entry.get());
+        resHolder[entry->bibKey] = oss.str();
+    }
+
+    return resHolder;
+}

@@ -21,10 +21,6 @@ createBibneatModule().then(Module => {
   const filter = new Module.FieldFilter(db);
   console.log("FieldFilter created:", filter);
 
-  // Test ApiCaller
-  const api = new Module.ApiCaller(db, 10, 10, false);
-  console.log("ApiCaller created:", api.connTimeout, api.totTimeout);
-
   // Test FieldNormalizer
   const normalizer = new Module.FieldNormalizer(db);
   console.log("FieldNormalizer created:", normalizer);
