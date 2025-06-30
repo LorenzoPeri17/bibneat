@@ -107,3 +107,6 @@ set_target_properties(bibneat_bin PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SO
 set_target_properties(bibgrab_bin PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 set_target_properties(bibneat_shared PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
 set_target_properties(bibneat_static PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
+
+# Install 
+install(TARGETS bibneat_bin bibgrab_bin CONFIGURATIONS Release)

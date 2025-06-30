@@ -39,11 +39,14 @@ We use `cmake` and [`vcpkg`](https://learn.microsoft.com/en-us/vcpkg/)  to autom
 ```sh
 cmake --preset=release
 cmake --build build
+cmake --install build --config Release --prefix <somewhere/in/your/path>
 ```
 
 and you’re off to the races!
 
 For more details, or if you prefer managing dependencies yourself and use `make`, see [`INSTALL.md`](INSTALL.md).
+
+> The command line is not your thing? Cannot possibly summon the courage to deal with `cmake`'s nonsense? Check out [bibneat studio](https://github.com/LorenzoPeri17/Bibneat-studio), `bibneat`'s graphical interface prepackaged as a standalone app to enjoy 100% of `bibneat`'s and `bibgrab`'s goodness  without ever touching a build tool or the command line!
 
 ## Library
 

@@ -1,9 +1,7 @@
 name: Ubuntu
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
   job:
@@ -12,7 +10,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, ubuntu-24.04, ubuntu-22.04]
+        os: [ubuntu-latest]
 
     steps:
       - uses: actions/checkout@v3
